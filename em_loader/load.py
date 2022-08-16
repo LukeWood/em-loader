@@ -88,7 +88,8 @@ def load(
         raise ValueError(f'Received invalid split, want one of {splits.keys()}')
     if not os.path.exists(data_path):
         if download:
-            download_lib.download(data_dir=data_dir)
+            print("[Warning] Data not found locally, downloading dataset...")
+            download_lib.download(base_dir=data_dir)
         else:
             raise ValueError(f"{data_path} does not exist, please download the dataset.")
 
