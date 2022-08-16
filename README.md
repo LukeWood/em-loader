@@ -1,21 +1,21 @@
-# Scisrs Loader
+# EM-images Loader
 
-`scisrs-loader` loaders the scisrs dataset into a `tf.data.Dataset` where
+`em-images-loader` loaders the scisrs dataset into a `tf.data.Dataset` where
 each element is a tuple of Dense Tensors representing images and RaggedTensors representing the
 bounding boxes contained in the images.
 
-`scisrs-loader` supports all of the [bounding box formats available in KerasCV](https://keras.io/api/keras_cv/bounding_box/),
+`em-images-loader` supports all of the [bounding box formats available in KerasCV](https://keras.io/api/keras_cv/bounding_box/),
 and loads bounding box Tensors as RaggedTensors by default.  This format natively fits the format 
 required by the [KerasCV object detection API](https://lukewood.xyz/blog/sneak-peek-object-detection-api).
 
-`scisrs-loader` requires use of the Kaggle API.
+`em-images-loader` requires use of the Kaggle API.
 
 ## Quickstart
 
 Getting started with the COTS loader is as easy as:
 
 ```python
-dataset = cots_loader.load(
+dataset = em_images.load(
   bounding_box_format="xywh", 
   split="train", 
   data_dir='/some/google/drive/or/local/drive',
@@ -54,7 +54,7 @@ TODO(lukewood): write how to download the file and create a data directory.
 
 ## API
 
-The scisrs-loader API supports the following arguments:
+The em-images API supports the following arguments:
 
 - *bounding_box_format*: any KerasCV supported bounding box format, specified in the [Keras documentation](https://keras.io/api/keras_cv/bounding_box/)
 - *data_dir*: the directory holding the data.  If you do not have a data directory, please follow the [Setup](#setup) instructions.
