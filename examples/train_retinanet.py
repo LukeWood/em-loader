@@ -60,7 +60,7 @@ dataset, dataset_info = em_loader.load(
 
 def visualize_dataset(dataset, bounding_box_format):
     color = tf.constant(((255.0, 0, 0),))
-    plt.figure(figsize=(10, 10))
+    plt.figure(figsize=(7, 7))
     iterator = iter(dataset)
     for i in range(9):
         example = next(iterator)

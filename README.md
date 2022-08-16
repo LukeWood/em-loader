@@ -1,6 +1,8 @@
 # EM-images Loader
 
-`em-loader` loaders the scisrs dataset into a `tf.data.Dataset` where
+![Sample loader](media/sample.png)
+
+`em-loader` loads an spectrogram dataset into a `tf.data.Dataset` where
 each element is a tuple of Dense Tensors representing images and RaggedTensors representing the
 bounding boxes contained in the images.
 
