@@ -3,3 +3,5 @@ __pycache__
 .DS_Store
 data/version-1
 data/version-1.zip
+logs/
+wandb/
