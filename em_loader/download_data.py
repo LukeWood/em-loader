@@ -1,20 +1,24 @@
-from em_loader.path import em_loader_root
-import requests
 import argparse
 import zipfile
 
-data_path = 'http://noiselab.ucsd.edu/sig_images.zip'
+import requests
+
+from em_loader.path import em_loader_root
+
+data_path = "http://noiselab.ucsd.edu/sig_images.zip"
+
 
 def download(base_dir=None):
     base_dir = base_dir or em_loader_root
     response = requests.get(data_path)
 
-    zip_file = f'{base_dir}/data/version-1.zip'
-    target_dir = f'{base_dir}/data/version-1'
+    zip_file = f"{base_dir}/data/version-1.zip"
+    target_dir = f"{base_dir}/data/version-1"
 
-    open(zip_file, 'wb').write(response.content)
-    with zipfile.ZipFile(zip_file, 'r') as zip:
+    open(zip_file, "wb").write(response.content)
+    with zipfile.ZipFile(zip_file, "r") as zip:
         zip.extractall(target_dir)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train model")
