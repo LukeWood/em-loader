@@ -12,13 +12,18 @@ required by the [KerasCV object detection API](https://lukewood.xyz/blog/sneak-p
 
 ## Quickstart
 
-Getting started with the COTS loader is as easy as:
+Getting started with the `em_loader` loader is as easy as:
+
+```bash
+git clone https://github.com/lukewood/em-loader
+cd em-loader
+python setup.py develop
+```
 
 ```python
 dataset = em_loader.load(
   bounding_box_format="xywh",
   split="train",
-  data_dir='/some/google/drive/or/local/drive',
   batch_size=16
 )
 ```

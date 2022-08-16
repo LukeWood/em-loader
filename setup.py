@@ -30,6 +30,7 @@ setup(
     url="",
     license="Apache License 2.0",
     install_requires=[
+        "keras_cv",
         "termcolor",
         "distinctipy",
         "matplotlib",
