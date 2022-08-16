@@ -13,7 +13,7 @@ def download(base_dir=None):
     target_dir = f'{base_dir}/data/version-1'
 
     open(zip_file, 'wb').write(response.content)
-    with zipfile.Zipfile(zip_file, 'r') as zip:
+    with zipfile.ZipFile(zip_file, 'r') as zip:
         zip.extractall(target_dir)
 
 if __name__ == "__main__":

@@ -87,7 +87,10 @@ def load(
     if not split in splits:
         raise ValueError(f'Received invalid split, want one of {splits.keys()}')
     if not os.path.exists(data_path):
-        raise ValueError(f"{data_path} does not exist, please download the dataset.")
+        if download:
+            download_lib.download(data_dir=data_dir)
+        else:
+            raise ValueError(f"{data_path} does not exist, please download the dataset.")
 
     csv_path = f'{base_dir}/data/metadata/{splits[split]}'
 
