@@ -40,7 +40,6 @@ model = keras_cv.models.RetinaNet(
     backbone_weights="imagenet",
     include_rescaling=True,
 )
-model.backbone.trainable = False
 
 loss = keras_cv.losses.ObjectDetectionLoss(
     classes=20,
