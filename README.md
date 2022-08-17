@@ -55,10 +55,6 @@ model.compile(
 )
 ```
 
-## Setup
-
-TODO(lukewood): write how to download the file and create a data directory.
-
 ## API
 
 The em-images API supports the following arguments:
