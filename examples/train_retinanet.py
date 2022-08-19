@@ -109,7 +109,6 @@ def augment(sample):
 
 
 train_ds = train_ds.map(augment, num_parallel_calls=tf.data.AUTOTUNE)
-visualize_dataset(train_ds, bounding_box_format="xywh")
 
 """
 Great!  We now have a bounding box friendly augmentation pipeline.
@@ -117,6 +116,33 @@ Great!  We now have a bounding box friendly augmentation pipeline.
 Next, let's unpackage our inputs from the preprocessing dictionary, and prepare to feed
 the inputs into our model.
 """
+
+"""
+# Resize to fit image sizing requirements
+"""
+def resize_data(inputs, size):
+	image = inputs["images"]
+	bboxes = inputs["bounding_boxes"]
+
+	# Convert bounding boxes to relative format
+	bboxes = bounding_box.convert_format(bboxes, source='xywh', target='rel_yxyx', images=image)
+	
+	# Resize image
+	image = tf.image.resize(image, size)
+
+	# Convert bounding boxes back to original format
+	bboxes = bounding_box.convert_format(bboxes, source='rel_yxyx', target='xywh', images=image)
+
+	inputs["images"] = image
+	inputs["bounding_boxes"] = bboxes
+
+	return inputs
+
+size = [512,512]
+train_ds = train_ds.map(lambda x: resize_data(x, size))
+val_ds = val_ds.map(lambda x: resize_data(x, size))
+
+visualize_dataset(train_ds, bounding_box_format="xywh")
 
 
 def unpackage_dict(inputs):
