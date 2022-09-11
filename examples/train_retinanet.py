@@ -29,6 +29,7 @@ flags.DEFINE_integer("batch_size", 8, "Training and eval batch size.")
 flags.DEFINE_integer("epochs", 1, "Number of training epochs.")
 flags.DEFINE_string("wandb_entity", "scisrs", "wandb entity to use.")
 flags.DEFINE_string("experiment_name", None, "wandb run name to use.")
+flags.DEFINE_string("checkpoint_path", None, "checkpoint path to use.")
 FLAGS = flags.FLAGS
 
 FLAGS(sys.argv)
@@ -96,37 +97,13 @@ val_ds, val_dataset_info = em_loader.load(
     bounding_box_format="xywh", split="val", batch_size=FLAGS.batch_size
 )
 
-augmentation_layers = [
-    # keras_cv.layers.RandomShear(x_factor=0.1, bounding_box_format='xywh'),
-    # TODO(lukewood): add color jitter and others
-]
-
-
-def augment(sample):
-    for layer in augmentation_layers:
-        sample = layer(sample)
-    return sample
-
-
-train_ds = train_ds.map(augment, num_parallel_calls=tf.data.AUTOTUNE)
-
-"""
-Great!  We now have a bounding box friendly augmentation pipeline.
-
-Next, let's unpackage our inputs from the preprocessing dictionary, and prepare to feed
-the inputs into our model.
-"""
-
-"""
-# Resize to fit image sizing requirements
-"""
 def resize_data(inputs, size):
 	image = inputs["images"]
 	bboxes = inputs["bounding_boxes"]
 
 	# Convert bounding boxes to relative format
 	bboxes = bounding_box.convert_format(bboxes, source='xywh', target='rel_yxyx', images=image)
-	
+
 	# Resize image
 	image = tf.image.resize(image, size)
 
@@ -169,72 +146,31 @@ the model are expected to be in the range `[0, 255]`.
 """
 
 model = keras_cv.models.RetinaNet(
-    classes=20,
+    classes=1,
     bounding_box_format="xywh",
     backbone="resnet50",
     backbone_weights="imagenet",
     include_rescaling=True,
 )
 
-"""
-That is all it takes to construct a KerasCV RetinaNet.  The RetinaNet accepts tuples of
-dense image Tensors and ragged bounding box Tensors to `fit()` and `train_on_batch()`
-This matches what we have constructed in our input pipeline above.
-
-The RetinaNet `call()` method outputs two values: training targets and inference targets.
-In this guide, we are primarily concerned with the inference targets.  Internally, the
-training targets are used by `keras_cv.losses.ObjectDetectionLoss()` to train the
-network.
-"""
-
-"""
-## Optimizer
-
-For training, we use a SGD optimizer with a piece-wise learning rate schedule
-consisting of a warm up followed by a ramp up, then a ramp.
-Below, we construct this using a `keras.optimizers.schedules.PiecewiseConstantDecay`
-schedule.
-"""
-
-optimizer = optimizers.SGD(learning_rate=0.1, momentum=0.9, global_clipnorm=10.0)
-
-"""
-## COCO metrics monitoring
-
-"""
-
+optimizer = tf.optimizers.SGD(global_clipnorm=10.0)
 metrics = [
     keras_cv.metrics.COCOMeanAveragePrecision(
-        class_ids=range(20),
+        class_ids=range(1),
         bounding_box_format="xywh",
-        name="Mean Average Precision",
+        name="MaP",
     ),
     keras_cv.metrics.COCORecall(
-        class_ids=range(20),
+        class_ids=range(1),
         bounding_box_format="xywh",
         max_detections=100,
         name="Recall",
     ),
 ]
 
-"""
-## Training our model
-
-All that is left to do is train our model.  KerasCV object detection models follow the
-standard Keras workflow, leveraging `compile()` and `fit()`.
-
-Let's compile our model:
-"""
-
-loss = keras_cv.losses.ObjectDetectionLoss(
-    classes=20,
+model.compile(
     classification_loss=keras_cv.losses.FocalLoss(from_logits=True, reduction="none"),
     box_loss=keras_cv.losses.SmoothL1Loss(l1_cutoff=1.0, reduction="none"),
-    reduction="auto",
-)
-
-model.compile(
-    loss=loss,
     optimizer=optimizer,
     metrics=metrics,
 )
@@ -245,8 +181,9 @@ All that is left to do is construct some callbacks:
 
 callbacks = [
     callbacks_lib.TensorBoard(log_dir="logs"),
-    callbacks_lib.EarlyStopping(patience=50),
-    callbacks_lib.ReduceLROnPlateau(patience=20),
+    callbacks_lib.EarlyStopping(patience=20),
+    callbacks_lib.ReduceLROnPlateau(patience=5),
+    keras.callbacks.ModelCheckpoint(FLAGS.checkpoint_path, save_weights_only=True),
 ]
 if FLAGS.wandb_entity:
     callbacks += [
@@ -259,11 +196,34 @@ And run `model.fit()`!
 
 model.fit(
     train_ds,
-    validation_data=val_ds,
+    validation_data=val_ds.take(20),
     epochs=FLAGS.epochs,
     callbacks=callbacks,
 )
 
-"""
-## Results and conclusions
-"""
+model.load_weights(FLAGS.checkpoint_path)
+metrics = model.evaluate(val_ds.take(100), return_dict=True)
+print(metrics)
+
+def visualize_detections(model):
+    train_ds, val_dataset_info = keras_cv.datasets.pascal_voc.load(
+        bounding_box_format="xywh", split="train", batch_size=9
+    )
+    train_ds = train_ds.map(dict_to_tuple, num_parallel_calls=tf.data.AUTOTUNE)
+    images, labels = next(iter(train_ds.take(1)))
+    predictions = model.predict(images)
+    color = tf.constant(((255.0, 0, 0),))
+    plt.figure(figsize=(10, 10))
+    predictions = keras_cv.bounding_box.convert_format(
+        predictions, source="xywh", target="rel_yxyx", images=images
+    )
+    predictions = predictions.to_tensor(default_value=-1)
+    plotted_images = tf.image.draw_bounding_boxes(images, predictions[..., :4], color)
+    for i in range(9):
+        plt.subplot(9 // 3, 9 // 3, i + 1)
+        plt.imshow(plotted_images[i].numpy().astype("uint8"))
+        plt.axis("off")
+    plt.savefig("demo.png")
+
+
+visualize_detections(model)
