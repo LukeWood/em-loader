@@ -97,27 +97,38 @@ val_ds, val_dataset_info = em_loader.load(
     bounding_box_format="xywh", split="val", batch_size=FLAGS.batch_size
 )
 
+
 def resize_data(inputs, size):
-	image = inputs["images"]
-	bboxes = inputs["bounding_boxes"]
+    image = inputs["images"]
+    bboxes = inputs["bounding_boxes"]
 
-	# Convert bounding boxes to relative format
-	bboxes = bounding_box.convert_format(bboxes, source='xywh', target='rel_yxyx', images=image)
+    # Convert bounding boxes to relative format
+    bboxes = bounding_box.convert_format(
+        bboxes, source="xywh", target="rel_yxyx", images=image
+    )
 
-	# Resize image
-	image = tf.image.resize(image, size)
+    # Resize image
+    image = tf.image.resize(image, size)
 
-	# Convert bounding boxes back to original format
-	bboxes = bounding_box.convert_format(bboxes, source='rel_yxyx', target='xywh', images=image)
+    # Convert bounding boxes back to original format
+    bboxes = bounding_box.convert_format(
+        bboxes, source="rel_yxyx", target="xywh", images=image
+    )
 
-	inputs["images"] = image
-	inputs["bounding_boxes"] = bboxes
+    inputs["images"] = image
+    inputs["bounding_boxes"] = bboxes
 
-	return inputs
+    return inputs
 
-size = [512,512]
-train_ds = train_ds.map(lambda x: resize_data(x, size))
-val_ds = val_ds.map(lambda x: resize_data(x, size))
+
+random_flip = keras_cv.layers.RandomFlip(mode="horizontal", bounding_box_format="xywh")
+
+size = [512, 512]
+train_ds = train_ds.map(
+    lambda x: resize_data(x, size), num_parallel_calls=tf.data.AUTOTUNE
+)
+val_ds = val_ds.map(lambda x: resize_data(x, size), num_parallel_calls=tf.data.AUTOTUNE)
+train_ds = train_ds.map(random_flip, num_parallel_calls=tf.data.AUTOTUNE)
 
 visualize_dataset(train_ds, bounding_box_format="xywh")
 
@@ -204,6 +215,7 @@ model.fit(
 model.load_weights(FLAGS.checkpoint_path)
 metrics = model.evaluate(val_ds.take(100), return_dict=True)
 print(metrics)
+
 
 def visualize_detections(model):
     train_ds, val_dataset_info = keras_cv.datasets.pascal_voc.load(
