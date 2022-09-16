@@ -1,4 +1,4 @@
-# EM-images Loader
+# EM Loader
 
 ![Sample loader](media/sample.png)
 
