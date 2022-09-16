@@ -194,8 +194,12 @@ callbacks = [
     callbacks_lib.TensorBoard(log_dir="logs"),
     callbacks_lib.EarlyStopping(patience=20),
     callbacks_lib.ReduceLROnPlateau(patience=5),
-    keras.callbacks.ModelCheckpoint(FLAGS.checkpoint_path, save_weights_only=True),
 ]
+
+if FLAGS.checkpoint_path is not None:
+    callbacks += [
+            keras.callbacks.ModelCheckpoint(FLAGS.checkpoint_path, save_weights_only=True)
+    ]
 if FLAGS.wandb_entity:
     callbacks += [
         wandb.keras.WandbCallback(save_model=False),
