@@ -34,23 +34,11 @@ And fitting a model to the dataset is as easy as:
 
 ```python
 model = keras_cv.models.RetinaNet(
-    classes=2,
+    classes=1,
     bounding_box_format="xywh",
     backbone="resnet50",
     backbone_weights="imagenet",
     include_rescaling=True,
-)
-
-loss = keras_cv.losses.ObjectDetectionLoss(
-    classes=20,
-    classification_loss=keras_cv.losses.FocalLoss(from_logits=True, reduction="none"),
-    box_loss=keras_cv.losses.SmoothL1Loss(l1_cutoff=1.0, reduction="none"),
-    reduction="auto",
-)
-model.compile(
-    loss=loss,
-    optimizer=optimizers.SGD(momentum=0.9, global_clipnorm=10.0)
-    metrics=metrics,
 )
 ```
 
