@@ -30,7 +30,7 @@ flags.DEFINE_integer("epochs", 1, "Number of training epochs.")
 flags.DEFINE_string("wandb_entity", "scisrs", "wandb entity to use.")
 flags.DEFINE_string("experiment_name", None, "wandb run name to use.")
 flags.DEFINE_string("checkpoint_path", None, "checkpoint path to use.")
-flags.DEFINE_string("artifact_dir", None, "artifact directory to use.")
+flags.DEFINE_string("artifacts_dir", None, "artifact directory to use.")
 FLAGS = flags.FLAGS
 
 FLAGS(sys.argv)
