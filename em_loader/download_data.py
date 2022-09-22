@@ -22,8 +22,8 @@ def download(version=2, base_dir=None):
     data_path = data_paths[version]
     response = requests.get(data_path)
 
-    zip_file = f"{base_dir}/data/version-{version}.zip"
-    target_dir = f"{base_dir}/data/version-{version}"
+    zip_file = f"{base_dir}/version-{version}.zip"
+    target_dir = f"{base_dir}/version-{version}"
 
     open(zip_file, "wb").write(response.content)
     with zipfile.ZipFile(zip_file, "r") as zip:

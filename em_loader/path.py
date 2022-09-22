@@ -11,4 +11,5 @@ def ensure_exists(path):
 
 def get_base_dir():
     ensure_exists(em_loader_root)
+    ensure_exists(f"em_loader_root/data")
     return em_loader_root

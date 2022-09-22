@@ -23,9 +23,9 @@ splits = {
 
 def get_csv_path(base_dir, split, version):
     if version == 1:
-        return f"{base_dir}/data/metadata/{splits[split]}"
+        raise ValueError("Version 1 was removed sorry")
     if version == 2:
-        return f"{base_dir}/data/version-2/yolo_images_dataset_20220921/metadata/{splits[split]}"
+        return f"{base_dir}/version-2/yolo_images_dataset_20220921/metadata/{splits[split]}"
     else:
         raise ValueError(f"Invalid version number, expected 1 or 2, got version={version}")
 
@@ -113,7 +113,7 @@ def load(
 ):
     base_dir = data_dir or get_base_dir()
     base_dir = os.path.abspath(base_dir)
-    data_path = f"{base_dir}/data/version-{version}"
+    data_path = f"{base_dir}/version-{version}"
 
     if not split in splits:
         raise ValueError(f"Received invalid split, want one of {splits.keys()}")
