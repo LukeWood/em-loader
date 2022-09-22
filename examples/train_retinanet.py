@@ -121,14 +121,11 @@ def resize_data(inputs, size):
     return inputs
 
 
-random_flip = keras_cv.layers.RandomFlip(mode="horizontal", bounding_box_format="xywh")
-
 size = [512, 512]
 train_ds = train_ds.map(
     lambda x: resize_data(x, size), num_parallel_calls=tf.data.AUTOTUNE
 )
 val_ds = val_ds.map(lambda x: resize_data(x, size), num_parallel_calls=tf.data.AUTOTUNE)
-train_ds = train_ds.map(random_flip, num_parallel_calls=tf.data.AUTOTUNE)
 
 visualize_dataset(train_ds, bounding_box_format="xywh")
 
@@ -198,7 +195,7 @@ callbacks = [
 
 if FLAGS.checkpoint_path is not None:
     callbacks += [
-            keras.callbacks.ModelCheckpoint(FLAGS.checkpoint_path, save_weights_only=True)
+        keras.callbacks.ModelCheckpoint(FLAGS.checkpoint_path, save_weights_only=True)
     ]
 if FLAGS.wandb_entity:
     callbacks += [
