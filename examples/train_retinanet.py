@@ -219,7 +219,7 @@ model.fit(
 
 model.load_weights(FLAGS.checkpoint_path)
 metrics = model.evaluate(val_ds, return_dict=True)
-print("FINAL METRICS:" metrics)
+print("FINAL METRICS:", metrics)
 
 
 def visualize_detections(model):
@@ -243,7 +243,7 @@ def visualize_detections(model):
     plt.savefig(f"{FLAGS.artifacts_dir}/demo.png")
 
 visualize_detections(model)
-print("FINAL METRICS:" metrics)
+print("FINAL METRICS:", metrics)
 
 with open(f"{FLAGS.artifacts_dir}/MaP.txt", "w") as f:
     f.write(metrics["MaP"])
