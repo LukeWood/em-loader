@@ -5,15 +5,25 @@ import requests
 
 from em_loader.path import em_loader_root
 
-data_path = "http://noiselab.ucsd.edu/sig_images.zip"
+data_paths = {
+    1: "http://noiselab.ucsd.edu/sig_images.zip",
+    2: "http://noiselab.ucsd.edu/sig_images2.zip",
+}
 
 
-def download(base_dir=None):
+def download(version=2, base_dir=None):
+    global data_paths
     base_dir = base_dir or em_loader_root
+    if not version in data_paths:
+        raise ValueError(
+            "Attempted to download an invalid version of the sig images. "
+            f"Expected version to be in {data_paths.keys()}, but got version={version}"
+        )
+    data_path = data_paths[version]
     response = requests.get(data_path)
 
-    zip_file = f"{base_dir}/data/version-1.zip"
-    target_dir = f"{base_dir}/data/version-1"
+    zip_file = f"{base_dir}/data/version-{version}.zip"
+    target_dir = f"{base_dir}/data/version-{version}"
 
     open(zip_file, "wb").write(response.content)
     with zipfile.ZipFile(zip_file, "r") as zip:

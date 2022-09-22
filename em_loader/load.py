@@ -99,12 +99,13 @@ def load(
     split="train",
     data_dir=None,
     download=True,
+    version=2,
     verbosity=1,
     with_info=True,
 ):
     base_dir = data_dir or em_loader_root
     base_dir = os.path.abspath(base_dir)
-    data_path = f"{base_dir}/data/version-1"
+    data_path = f"{base_dir}/data/version-{version}"
 
     if not split in splits:
         raise ValueError(f"Received invalid split, want one of {splits.keys()}")
