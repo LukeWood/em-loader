@@ -45,6 +45,7 @@ setup(
         "pycm",
         "plotly",
         "prawn",
+        "luketils",
         "tensorflowjs",
     ],
     extras_require={

@@ -11,7 +11,7 @@ from keras_cv import bounding_box
 from tqdm.auto import tqdm
 
 import em_loader.download_data as download_lib
-from em_loader.path import em_loader_root
+from em_loader.path import get_base_dir
 
 splits = {
     "train": "train.csv",
@@ -111,7 +111,7 @@ def load(
     verbosity=1,
     with_info=True,
 ):
-    base_dir = data_dir or em_loader_root
+    base_dir = data_dir or get_base_dir()
     base_dir = os.path.abspath(base_dir)
     data_path = f"{base_dir}/data/version-{version}"
 
