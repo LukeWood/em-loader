@@ -30,11 +30,12 @@ flags.DEFINE_integer("epochs", 1, "Number of training epochs.")
 flags.DEFINE_string("wandb_entity", "scisrs", "wandb entity to use.")
 flags.DEFINE_string("experiment_name", None, "wandb run name to use.")
 flags.DEFINE_string("checkpoint_path", None, "checkpoint path to use.")
+flags.DEFINE_string("artifacts_dir", None, "artifact directory to use.")
 FLAGS = flags.FLAGS
 
 FLAGS(sys.argv)
 
-if FLAGS.wandb_entity:
+if FLAGS.wandb_entity and FLAGS.experiment_name:
     wandb.init(
         project="scisrs",
         entity=FLAGS.wandb_entity,
@@ -55,7 +56,8 @@ Lets load some data and verify that our data looks as we expect it to.
 """
 
 dataset, dataset_info = em_loader.load(
-    split="train", bounding_box_format="xywh", batch_size=9
+    split="train", bounding_box_format="xywh", batch_size=9,
+    version=2,
 )
 
 
@@ -159,7 +161,7 @@ model = keras_cv.models.RetinaNet(
     classes=1,
     bounding_box_format="xywh",
     backbone="resnet50",
-    backbone_weights="imagenet",
+    backbone_weights=None,
     include_rescaling=True,
 )
 
@@ -216,8 +218,8 @@ model.fit(
 )
 
 model.load_weights(FLAGS.checkpoint_path)
-metrics = model.evaluate(val_ds.take(100), return_dict=True)
-print(metrics)
+metrics = model.evaluate(val_ds, return_dict=True)
+print("FINAL METRICS:", metrics)
 
 
 def visualize_detections(model):
@@ -238,7 +240,13 @@ def visualize_detections(model):
         plt.subplot(9 // 3, 9 // 3, i + 1)
         plt.imshow(plotted_images[i].numpy().astype("uint8"))
         plt.axis("off")
-    plt.savefig("demo.png")
-
+    plt.savefig(f"{FLAGS.artifacts_dir}/demo.png")
 
 visualize_detections(model)
+print("FINAL METRICS:", metrics)
+
+with open(f"{FLAGS.artifacts_dir}/MaP.txt", "w") as f:
+    f.write(metrics["MaP"])
+
+with open(f"{FLAGS.artifacts_dir}/Recall.txt", "w") as f:
+    f.write(metrics["Recall"])

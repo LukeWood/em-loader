@@ -3,7 +3,7 @@ import zipfile
 
 import requests
 
-from em_loader.path import em_loader_root
+from em_loader.path import get_base_dir
 
 data_paths = {
     1: "http://noiselab.ucsd.edu/sig_images.zip",
@@ -13,7 +13,7 @@ data_paths = {
 
 def download(version=2, base_dir=None):
     global data_paths
-    base_dir = base_dir or em_loader_root
+    base_dir = base_dir or get_base_dir()
     if not version in data_paths:
         raise ValueError(
             "Attempted to download an invalid version of the sig images. "

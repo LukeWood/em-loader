@@ -11,7 +11,7 @@ from keras_cv import bounding_box
 from tqdm.auto import tqdm
 
 import em_loader.download_data as download_lib
-from em_loader.path import em_loader_root
+from em_loader.path import get_base_dir
 
 splits = {
     "train": "train.csv",
@@ -20,6 +20,14 @@ splits = {
     "validation": "val.csv",
 }
 
+
+def get_csv_path(base_dir, split, version):
+    if version == 1:
+        return f"{base_dir}/data/metadata/{splits[split]}"
+    if version == 2:
+        return f"{base_dir}/data/version-2/yolo_images_dataset_20220921/metadata/{splits[split]}"
+    else:
+        raise ValueError(f"Invalid version number, expected 1 or 2, got version={version}")
 
 def parse_annotation_file(annotation_filename):
 
@@ -86,7 +94,7 @@ def load_scisrs_dataset(base_path, csv_path, bounding_box_format):
     return tf.data.Dataset.from_generator(
         dataset_generator,
         output_signature=(
-            tf.TensorSpec(shape=(500, 500, 3), dtype=tf.float32),
+            tf.TensorSpec(shape=(512, 512, 3), dtype=tf.float32),
             tf.TensorSpec(shape=(None, 4), dtype=tf.float32),
             tf.TensorSpec(shape=(None,), dtype=tf.int32),
         ),
@@ -103,7 +111,7 @@ def load(
     verbosity=1,
     with_info=True,
 ):
-    base_dir = data_dir or em_loader_root
+    base_dir = data_dir or get_base_dir()
     base_dir = os.path.abspath(base_dir)
     data_path = f"{base_dir}/data/version-{version}"
 
@@ -118,7 +126,9 @@ def load(
                 f"{data_path} does not exist, please download the dataset."
             )
 
-    csv_path = f"{base_dir}/data/metadata/{splits[split]}"
+    csv_path = get_csv_path(base_dir, split, version)
+    if version == 2:
+        data_path = f"{data_path}/yolo_images_dataset_20220921/yolo_images_dataset/"
 
     ds, ds_info = load_scisrs_dataset(
         data_path, csv_path, bounding_box_format=bounding_box_format
