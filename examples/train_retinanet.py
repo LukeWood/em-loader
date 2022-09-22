@@ -21,7 +21,6 @@ from keras_cv import bounding_box
 from tensorflow import keras
 from tensorflow.keras import callbacks as callbacks_lib
 from tensorflow.keras import optimizers
-import luketils
 
 import em_loader
 import wandb
@@ -162,7 +161,7 @@ model = keras_cv.models.RetinaNet(
     classes=1,
     bounding_box_format="xywh",
     backbone="resnet50",
-    backbone_weights="imagenet",
+    backbone_weights=None,
     include_rescaling=True,
 )
 
