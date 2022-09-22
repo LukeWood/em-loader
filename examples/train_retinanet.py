@@ -91,10 +91,12 @@ data augmentation pipeline.
 # train_ds is batched as a (images, bounding_boxes) tuple
 # bounding_boxes are ragged
 train_ds, train_dataset_info = em_loader.load(
-    bounding_box_format="xywh", split="train", batch_size=FLAGS.batch_size
+    bounding_box_format="xywh", split="train", batch_size=FLAGS.batch_size,
+    version=2
 )
 val_ds, val_dataset_info = em_loader.load(
-    bounding_box_format="xywh", split="val", batch_size=FLAGS.batch_size
+    bounding_box_format="xywh", split="val", batch_size=FLAGS.batch_size,
+    version=2
 )
 
 
