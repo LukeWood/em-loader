@@ -30,11 +30,12 @@ flags.DEFINE_integer("epochs", 1, "Number of training epochs.")
 flags.DEFINE_string("wandb_entity", "scisrs", "wandb entity to use.")
 flags.DEFINE_string("experiment_name", None, "wandb run name to use.")
 flags.DEFINE_string("checkpoint_path", None, "checkpoint path to use.")
+flags.DEFINE_string("artifact_dir", None, "artifact directory to use.")
 FLAGS = flags.FLAGS
 
 FLAGS(sys.argv)
 
-if FLAGS.wandb_entity:
+if FLAGS.wandb_entity and FLAGS.experiment_name:
     wandb.init(
         project="scisrs",
         entity=FLAGS.wandb_entity,
@@ -55,7 +56,8 @@ Lets load some data and verify that our data looks as we expect it to.
 """
 
 dataset, dataset_info = em_loader.load(
-    split="train", bounding_box_format="xywh", batch_size=9
+    split="train", bounding_box_format="xywh", batch_size=9,
+    version=2,
 )
 
 
