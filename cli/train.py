@@ -3,7 +3,7 @@ Title: Train a RetinaNet to Detect ElectroMagnetic Signals
 Author: [lukewood](https://lukewood.xyz), Kevin Anderson, Peter Gerstoft
 Date created: 2022/08/16
 Last modified: 2022/08/16
-Description:
+Description: Train ...
 """
 
 """
@@ -70,7 +70,9 @@ Lets load some data and verify that our data looks as we expect it to.
 """
 
 dataset, dataset_info = em_loader.load(
-    split="train", bounding_box_format="xywh", batch_size=9,
+    split="train",
+    bounding_box_format="xywh",
+    batch_size=9,
     version=2,
 )
 
@@ -80,17 +82,16 @@ images, boxes = example["images"], example["bounding_boxes"]
 visualization.plot_bounding_box_gallery(
     images,
     value_range=(0, 255),
-    bounding_box_format='xywh'',
+    bounding_box_format="xywh",
     y_true=boxes,
     scale=4,
     rows=3,
     cols=3,
-    show=True,
     thickness=4,
     font_scale=1,
     class_mapping=class_mapping,
-    show=artifacts_dir is None,
-    path=artifacts.path('ground-truth.png')
+    show=(artifacts_dir is None),
+    path=artifacts.path("ground-truth.png"),
 )
 
 """
@@ -101,16 +102,16 @@ data pipeline
 # train_ds is batched as a (images, bounding_boxes) tuple
 # bounding_boxes are ragged
 train_ds, train_dataset_info = em_loader.load(
-    bounding_box_format="xywh", split="train", batch_size=FLAGS.batch_size,
-    version=2
+    bounding_box_format="xywh", split="train", batch_size=FLAGS.batch_size, version=2
 )
 val_ds, val_dataset_info = em_loader.load(
-    bounding_box_format="xywh", split="val", batch_size=FLAGS.batch_size,
-    version=2
+    bounding_box_format="xywh", split="val", batch_size=FLAGS.batch_size, version=2
 )
+
 
 def unpackage_dict(inputs):
     return inputs["images"], inputs["bounding_boxes"]
+
 
 train_ds = train_ds.map(unpackage_dict, num_parallel_calls=tf.data.AUTOTUNE)
 val_ds = val_ds.map(unpackage_dict, num_parallel_calls=tf.data.AUTOTUNE)
@@ -168,7 +169,7 @@ callbacks = [
     callbacks_lib.TensorBoard(log_dir="logs"),
     callbacks_lib.EarlyStopping(patience=20),
     callbacks_lib.ReduceLROnPlateau(patience=5),
-    keras.callbacks.ModelCheckpoint(FLAGS.checkpoint_path, save_weights_only=True)
+    keras.callbacks.ModelCheckpoint(FLAGS.checkpoint_path, save_weights_only=True),
 ]
 
 if FLAGS.wandb_entity:
@@ -182,7 +183,7 @@ And run `model.fit()`!
 
 history = model.fit(
     train_ds,
-    steps_per_epochs=1
+    steps_per_epochs=1,
     # validation_data=val_ds.take(20),
     epochs=FLAGS.epochs,
     callbacks=callbacks,
@@ -194,10 +195,11 @@ print("FINAL METRICS:", metrics)
 
 if artifacts_dir is not None:
     for metric in metrics:
-        with open('artifacts_dir/metrics_{metric}.txt', 'w') as f:
+        with open("artifacts_dir/metrics_{metric}.txt", "w") as f:
             f.write(metrics[metric])
 
-def visualize_detections(model, split='train'):
+
+def visualize_detections(model, split="train"):
     train_ds, val_dataset_info = em_loader.load(
         bounding_box_format="xywh", split=split, batch_size=9
     )
@@ -213,13 +215,13 @@ def visualize_detections(model, split='train'):
         scale=4,
         rows=3,
         cols=3,
-        show=True,
         thickness=4,
         font_scale=1,
         class_mapping=class_mapping,
-        show=artifacts_dir is None,
-        path=artifacts.path(f'{split}.png')
+        show=(artifacts_dir is None),
+        path=artifacts.path(f"{split}.png"),
     )
 
-visualize_detections(model, split='train')
-visualize_detections(model, split='val')
+
+visualize_detections(model, split="train")
+visualize_detections(model, split="val")
